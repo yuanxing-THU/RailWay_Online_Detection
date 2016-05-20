@@ -60,6 +60,20 @@ void MainWindow::init(){
     ACC_serial->setFlowControl(QSerialPort::NoFlowControl);
     ACC_serial->setPortName("/dev/ttyUSB1");
 
+    //ACC PLOT test
+    ui->ACC_plot->addGraph();
+    QVector<double> x(101), y(101); // initialize with entries 0..100
+    for (int i=0; i<101; ++i)
+    {
+      x[i] = i/50.0 - 1; // x goes from -1 to 1
+      y[i] = x[i]*x[i]; // let's plot a quadratic function
+    }
+    ui->ACC_plot->graph(0)->setData(x, y);
+    ui->ACC_plot->xAxis->setLabel("x");
+    ui->ACC_plot->yAxis->setLabel("y");
+    ui->ACC_plot->xAxis->setRange(-1, 1);
+    ui->ACC_plot->yAxis->setRange(0, 1);
+    ui->ACC_plot->replot();
 }
 void MainWindow::base_time_slot(){
     base_time++;
