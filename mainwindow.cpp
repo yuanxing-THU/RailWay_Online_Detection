@@ -58,26 +58,91 @@ void MainWindow::init(){
     ACC_serial->setParity(QSerialPort::NoParity);
     ACC_serial->setStopBits(QSerialPort::OneStop);
     ACC_serial->setFlowControl(QSerialPort::NoFlowControl);
-    ACC_serial->setPortName("/dev/ttyUSB1");
+    ACC_serial->setPortName("/dev/ttyUSB0");
 
     //ACC PLOT test
+    ui->ACC_plot->legend->setVisible(true);
     ui->ACC_plot->addGraph();
-    QVector<double> x(101), y(101); // initialize with entries 0..100
-    for (int i=0; i<101; ++i)
-    {
-      x[i] = i/50.0 - 1; // x goes from -1 to 1
-      y[i] = x[i]*x[i]; // let's plot a quadratic function
-    }
-    ui->ACC_plot->graph(0)->setData(x, y);
-    ui->ACC_plot->xAxis->setLabel("x");
-    ui->ACC_plot->yAxis->setLabel("y");
-    ui->ACC_plot->xAxis->setRange(-1, 1);
-    ui->ACC_plot->yAxis->setRange(0, 1);
-    ui->ACC_plot->replot();
+    ui->ACC_plot->addGraph();
+    ui->ACC_plot->addGraph();
+    ui->ACC_plot->graph(0)->setPen(QPen(Qt::blue));
+    ui->ACC_plot->graph(0)->setName("x");
+    ui->ACC_plot->graph(1)->setPen(QPen(Qt::red));
+    ui->ACC_plot->graph(1)->setName("y");
+    ui->ACC_plot->graph(2)->setPen(QPen(Qt::green));
+    ui->ACC_plot->graph(2)->setName("z");
+    ui->ACC_plot->xAxis->setLabel("t");
+    ui->ACC_plot->yAxis->setLabel("xyz");
+    ui->ACC_plot->xAxis->setRange(0, 100);
+    ui->ACC_plot->yAxis->setRange(-512, 512);
+//    QVector<double> x(101), y(101); // initialize with entries 0..100
+//    for (int i=0; i<101; ++i)
+//    {
+//      x[i] = i/50.0 - 1; // x goes from -1 to 1
+//      y[i] = x[i]*x[i]; // let's plot a quadratic function
+//    }
+//    ui->ACC_plot->graph(0)->setData(x, y);
+//    ui->ACC_plot->xAxis->setLabel("x");
+//    ui->ACC_plot->yAxis->setLabel("y");
+//    ui->ACC_plot->xAxis->setRange(0, 1000);
+//    ui->ACC_plot->yAxis->setRange(-512, 512);
+//    ui->ACC_plot->replot();
 }
 void MainWindow::base_time_slot(){
     base_time++;
+
     ui->base_time_label->setNum(base_time);
+    ACC_rxdata.clear();
+    ACC_rxdata = ACC_serial->readAll();
+
+    QVector <double> x,y,z,t;
+    int k=0;
+
+    if(ACC_button_status){
+        //ACC_rxdata processing
+        int l=ACC_rxdata.size();
+        int i=0;
+        signed short temp;
+        while(i<l){
+            if(ACC_rxdata[i]=='\n'){
+                if(ACC_rxdata[i+1]=='\n'){
+                    i+=2;
+                    break;
+                }
+            }
+            i++;
+        }
+        if(i<l){
+            while(i+6<l){
+                if(ACC_rxdata[i+6]=='\n'&&ACC_rxdata[i+7]=='\n'){
+                    k++;
+                    t.push_back(k);
+                    temp = (ACC_rxdata[i]<<8)+ACC_rxdata[i+1];
+//                    if(temp&0xF000){
+//                        temp=~temp+1;
+//                    }
+                    x.push_back(temp);
+                    temp = (ACC_rxdata[i+2]<<8)+ACC_rxdata[i+3];
+//                    if(temp&0xF000){
+//                        temp=~temp+1;
+//                    }
+                    y.push_back(temp);
+                    temp = (ACC_rxdata[i+4]<<8)+ACC_rxdata[i+5];
+//                    if(temp&0xF000){
+//                        temp=~temp+1;
+//                    }
+                    z.push_back(temp);
+
+                }
+                i+=8;
+            }
+        }
+
+        ui->ACC_plot->graph(0)->setData(t, x);
+        ui->ACC_plot->graph(1)->setData(t, y);
+        ui->ACC_plot->graph(2)->setData(t, z);
+        ui->ACC_plot->replot();
+    }
 }
 
 void MainWindow::on_GPS_begin_button_clicked()

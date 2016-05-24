@@ -43,10 +43,14 @@ private:
     int ACC_fd;
     QSerialPort *ACC_serial;
     QSerialPortInfo *ACC_serialinfo;
+    QByteArray ACC_rxdata;
+
   //BASE TIME
     QTimer *base_timer;
     int base_timer_time;  //time interval
     int base_time;  // unique ID
+
+
 
     //function
     void init();
