@@ -10,8 +10,8 @@
 using namespace std;
 //mydwt: single-level discrete 1-D wavelet transform
 // s : the input signal vector ;
-// cA: the output approximation coefficients vector 
-// cD: the output detail coefficients vector 
+// cA: the output approximation coefficients vector
+// cD: the output detail coefficients vector
 bool mydwt(vector<double> &s,vector<double> &cA,vector<double> &cD){
     int l = s.size();
     vector<double> * y;
@@ -48,7 +48,7 @@ bool mydwt(vector<double> &s,vector<double> &cA,vector<double> &cD){
 }
 
 //mywaveDec : multilevel 1-D wavelet decomposition
-//s : the input signal vector
+//s : the input signal  QVector
 //N : the levels 
 //C : the output coefficients [An Dn Dn-1...D2 D1]
 //L : the lengths [lAn lDn lDn-1 ... ls]
@@ -89,10 +89,10 @@ bool mywaveDec(vector<double> &s,int N,vector<double> &C,vector<int> &L){
 //l : the length upsampling target
 //y : the output signal 
 
-bool myupsconv(vector<double> &x,double *f,int l,vector<double> &y){
+bool myupsconv(vector<double> &x,double *f,unsigned int l,vector<double> &y){
     y.clear();
     vector<double> z;
-    int i=0;
+    unsigned int i=0;
     for(i=0;i<2*x.size()-1;i++){
         z.push_back(0);
     }
@@ -155,12 +155,13 @@ bool mywrcoef(char o,vector<double> &C,vector<int> &L,int N,vector<double> &X){
     myupsconv(X,f,L[nmin],tempX);
     X.clear();
     X.insert(X.begin(),tempX.begin(),tempX.end());
-    int k;
+    unsigned int k;
     for(k=nmin+2;k<=L.size();k++){
         tempX.clear();
         myupsconv(X,Lo,L[k-1],tempX);
         X.clear();
         X.insert(X.begin(),tempX.begin(),tempX.end());
     }
+    return true;
 }
 

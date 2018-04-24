@@ -6,10 +6,16 @@
 #include "gpsDisplay.h"
 #include "accDisplay.h"
 #include "GPS_info.h"
+#include "storeDisplay.h"
 #include <QFile>
-#include<QSerialPort>
-#include<QSerialPortInfo>
+#include <QtSerialPort/QSerialPort>
+#include <QtSerialPort/QSerialPortInfo>
 #include <qstring.h>
+#include<QDateTime>
+#include<QFile>
+#include<QDir>
+#include<QTextStream>
+#include<QCloseEvent>
 namespace Ui {
     class MainWindow;
 }
@@ -50,10 +56,20 @@ private:
     int base_timer_time;  //time interval
     int base_time;  // unique ID
 
-
-
+    QDateTime nowtime;
+    QDir *myDir;
+    QString dirname;
+    QFile *GPSfile;
+    QFile *ACCfile;
+    QTextStream *GPSout;
+    QTextStream *ACCout;
+    bool save_status;
     //function
     void init();
+
+    int file_num;
+
+    storeDisplay *sl;
 
 private slots:
     void on_ACC_stop_button_clicked();
@@ -63,6 +79,11 @@ private slots:
     void GPS_slot();
     void serial_getData();
     void base_time_slot();
+    void on_SAVE_button_clicked();
+    void on_save_stop_button_clicked();
+
+protected:
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H
